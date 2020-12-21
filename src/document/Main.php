@@ -42,13 +42,13 @@ class Main
 	public $workDir = '';
 
 	/**
-	 * glob函数的匹配规则
+	 * glob函数的匹配规则 TODO:多余参数
 	 * @var string
 	 */
 	public $patternFlag = GLOB_ERR;
 
 	/**
-	 * 扫描模式
+	 * 扫描模式 TODO:多余参数
 	 * all 扫描所有 包括目录下的目录
 	 * current 仅扫描当前目录
 	 * @var string
@@ -73,7 +73,7 @@ class Main
 	];
 
 	/**
-	 * 文件的meimi (考虑到IIS好像可以把其他文件映射成PHP执行所以这写活吧)
+	 * 文件的meimi (考虑到IIS好像可以把其他文件映射成PHP然后浏览器访问执行所以这写活吧   也不知道反射类还能不能用)
 	 * @var string
 	 */
 	public $memiType = 'text/x-php';
@@ -89,7 +89,6 @@ class Main
 		$data = func_get_args();
 		if(is_array($data[0])){
 			foreach($data[0] as $key => $item){
-				$arg  = Str::convertUnderline($key,false);
 				//检查并调用各个参数的set方法
 				$this->getMethod($key,$item);
 			}
@@ -187,7 +186,7 @@ class Main
      */
     public function setRegular(Array $regular){
         $diff = array_diff_key($regular, $this->regular);
-
+        //TODO:正则判断键名判断
         $this->regular = array_merge($this->regular,$regular);
     }
 

@@ -55,17 +55,20 @@ trait Build
      */
 	protected function glob($dir='')
 	{
-		$fileMap = glob(empty($dir)?$this->workDir:$dir,$this->patternFlag);
+//		$fileMap = glob(empty($dir)?$this->workDir:$dir,$this->patternFlag); #TODO:这里不需要$this->patternFlag参数
+		$fileMap = glob(empty($dir)?$this->workDir:$dir);
 
 		/**
 		 * 指定获取文件memi类型
 		 */
 		$memiType =  finfo_open(FILEINFO_MIME_TYPE);
 		foreach($fileMap as $file){
-            if(is_dir($file) && $this->pattern === 'all'){
-                $this->glob($file);
-		        continue;
-            }elseif(finfo_file($memiType,$file) !== $this->memiType){
+            /*TODO:这里没有必要
+             * if(is_dir($file) && $this->pattern === 'all'){
+                $this->glob($file);continue;
+            }else
+            */
+            if(finfo_file($memiType,$file) !== $this->memiType){
 		        continue;
             }
             $file = str_replace('/','\\',$file);
