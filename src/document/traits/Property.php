@@ -68,6 +68,8 @@ trait Property
 	 * @param array $regular
 	 */
 	public function setRegular(Array $regular){
+		$diff = array_diff_key($regular, $this->regular);
+
 		$this->regular = array_merge($this->regular,$regular);
 	}
 

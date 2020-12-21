@@ -44,7 +44,7 @@ class Main
 	 * glob函数的匹配规则
 	 * @var string
 	 */
-	public $patternFlag = 'GLOB_ERR';
+	public $patternFlag = GLOB_ERR;
 
 	/**
 	 * 扫描模式
