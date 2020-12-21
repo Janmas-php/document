@@ -1,0 +1,15 @@
+{
+    "name": "janmas/doc",
+    "authors": [
+        {
+            "name": "Janmas Crom",
+            "email": "janmas@126.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "doc\\": "src/document"
+        }
+    }
+}
