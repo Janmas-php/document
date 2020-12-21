@@ -10,7 +10,7 @@
 namespace doc\exception;
 
 
-class NoDirException extends \RuntimeException
+class FolderNotFoundException extends \RuntimeException
 {
 
 }

@@ -11,6 +11,7 @@ namespace doc\traits;
 
 
 use doc\exception\ClassNotFoundException;
+use doc\exception\FolderNotFoundException;
 
 trait Property
 {
@@ -51,7 +52,7 @@ trait Property
 		if(is_dir($workDir)){
 			$this->workDir = $workDir;
 		}
-		throw new \LogicException('工作目录不存在');
+		throw new FolderNotFoundException('工作目录不存在');
 	}
 
 	/**
@@ -75,6 +76,6 @@ trait Property
 			$this->depositPath = $depositPath;
 		}
 
-		throw new \LogicException('文件存放目录不存在');
+		throw new FolderNotFoundException('文件存放目录不存在');
 	}
 }
