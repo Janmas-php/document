@@ -9,7 +9,8 @@
     "require": {},
     "autoload": {
         "psr-4": {
-            "doc\\": "src/document"
+            "doc\\": "src/document",
+            "test\\": "src/test"
         }
     }
 }
