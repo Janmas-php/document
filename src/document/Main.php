@@ -10,8 +10,8 @@
 namespace doc;
 
 
-use doc\tool\File;
 use doc\tool\Str;
+use doc\tool\File;
 use doc\traits\Build;
 use doc\exception\ClassNotFoundException;
 use doc\exception\FolderNotFoundException;
