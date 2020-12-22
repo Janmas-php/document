@@ -36,7 +36,7 @@ trait Build
 	public function begin()
     {
         $this->classMap = ClassMap::instance();
-        if(!empty($this->ignore)){
+        if(!empty($this->configMap->offsetGet('ignore'))){
             $this->ignoreFile();
         }
         /**
@@ -56,21 +56,22 @@ trait Build
 	protected function glob($dir='')
 	{
 //		$fileMap = glob(empty($dir)?$this->workDir:$dir,$this->patternFlag); #TODO:这里不需要$this->patternFlag参数
-		$fileMap = glob(empty($dir)?$this->workDir:$dir);
+		$fileMap = glob(empty($dir)?$this->configMap->offsetGet('work_dir'):$dir);
 
 		/**
 		 * 指定获取文件memi类型
 		 */
 		$memiType =  finfo_open(FILEINFO_MIME_TYPE);
-		foreach($fileMap as $file){
+		foreach($fileMap as $offset=>$file){
             /*TODO:这里没有必要
              * if(is_dir($file) && $this->pattern === 'all'){
                 $this->glob($file);continue;
             }else
             */
-            if(finfo_file($memiType,$file) !== $this->memiType){
+            if(finfo_file($memiType,$file) !== $this->configMap->offsetGet('memi_type')){
 		        continue;
             }
+
             $file = str_replace('/','\\',$file);
 
 		    if(in_array($file,$this->ignoreFileMap)){
@@ -79,7 +80,7 @@ trait Build
 
             $filename = pathinfo($file)['filename'];
             $class = $this->getNamespace($file,$filename);
-            $this->classMap->offsetSet($filename,'\\'.$class);
+            $this->classMap->offsetSet($offset,'\\'.$class);
         }
 	}
 
@@ -119,7 +120,7 @@ trait Build
      * 把忽略文件的类读成文件
      */
     protected function ignoreFile(){
-        foreach($this->ignore as $class) {
+        foreach($this->configMap->offsetGet('ignore') as $class) {
             $reflector = new \ReflectionClass($class);
             $fn        = $reflector->getFileName();
             $this->ignoreFileMap[] = ($fn);

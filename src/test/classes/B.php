@@ -12,5 +12,26 @@ namespace test\classes;
 
 class B extends Basic
 {
+	/**
+	 * @title 测试
+	 * @method post
+	 * @desc 这个是测试用的func
+	 * @param String $keyword 关键词
+	 * @param Int $int 测试
+	 */
+	public function index(){
 
+	}
+	/**
+	 * @title 测试
+	 * @method post
+	 * @url api/b/test
+	 * @desc 这个是测试用的func
+	 * @param String $keyword 关键词
+	 * @param Int $int 测试
+	 * @return {"a":"b"}
+	 */
+	public function test(){
+
+	}
 }

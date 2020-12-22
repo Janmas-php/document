@@ -12,5 +12,7 @@ namespace test\classes;
 
 class Basic
 {
+	public function testa(){
 
+	}
 }

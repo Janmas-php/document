@@ -10,13 +10,19 @@
 namespace doc;
 
 
+use doc\logic\Create;
+use doc\tool\ConfigMap;
 use doc\tool\Str;
 use doc\tool\File;
 use doc\traits\Build;
 use doc\exception\ClassNotFoundException;
 use doc\exception\FolderNotFoundException;
 
-
+/**
+ * Class Main
+ * @package doc
+ * @property ConfigMap $configMap
+ */
 class Main
 {
 	use Build;
@@ -26,68 +32,65 @@ class Main
 	 * @var string
 	 * @example $main->basicContrller = XXX::class
 	 */
-	public $basicController = null;
+	protected $basicController = null;
 
 	/**
 	 * 忽略的类
 	 * @var array
 	 * @example [ XXX:class]
 	 */
-	public $ignore = [];
+	protected $ignore = [];
 
 	/**
 	 * 工作目录(绝对路径)
 	 * @var string
 	 */
-	public $workDir = '';
-
-	/**
-	 * glob函数的匹配规则 TODO:多余参数
-	 * @var string
-	 */
-	public $patternFlag = GLOB_ERR;
-
-	/**
-	 * 扫描模式 TODO:多余参数
-	 * all 扫描所有 包括目录下的目录
-	 * current 仅扫描当前目录
-	 * @var string
-	 */
-	public $pattern = 'currnet';
+	protected $workDir = '';
 
 	/**
 	 * 各个正则表达式的集合
-     *      func 读取方法名的正则表达式
+     *      title  读取方法名的正则表达式
+     *      url  读取api地址的正则表达式
      *      desc 读取描述的正则表达式
      *      method 读取请求方法的正则表达式
      *      params 读取参数的正则表达式
      *      return 读取返回值的正则表达式
 	 * @var string[]
 	 */
-	public $regular = [
-		  'func'   => ''
-		, 'desc'   => ''
-		, 'method' => ''
-		, 'params' => ''
-		, 'return' => ''
+	protected $regular = [
+		  'title'  => '/\s@title\s(.*)./'
+		, 'url'    => '/\s@url\s(.*)./'
+		, 'desc'   => '/\s@desc\s(.*)./'
+		, 'method' => '/\s@method\s(.*)./'
+		, 'params' => '/\s@param\s(.*)./'
+		, 'return' => '/\s@return\s(.*)./'
 	];
 
 	/**
 	 * 文件的meimi (考虑到IIS好像可以把其他文件映射成PHP然后浏览器访问执行所以这写活吧   也不知道反射类还能不能用)
 	 * @var string
 	 */
-	public $memiType = 'text/x-php';
+	protected $memiType = 'text/x-php';
 
 	/**
 	 * 生成的文件存放路径
 	 * @var string
 	 */
-	public $depositPath = '';
+	protected $depositPath = '';
+
+	/**
+	 * 配置
+	 * @var null
+	 */
+	protected $configMap = null;
 
 	public function __construct($workDir='')
     {
-		$data = func_get_args();
+	    $this->configMap = ConfigMap::instance();
+
+	    $data = func_get_args();
 		if(is_array($data[0])){
+//			$arg = array_merge(array_flip(array_map([Str::class,'uncamelize'],array_keys(get_object_vars($this)))),$data[0]); #TODO:兼容参数部分参数不传
 			foreach($data[0] as $key => $item){
 				//检查并调用各个参数的set方法
 				$this->getMethod($key,$item);
@@ -98,6 +101,7 @@ class Main
 			}
 			$this->setWorkDir($workDir);
 		}
+		$this->checkSet();
 	}
 
     /**
@@ -106,7 +110,9 @@ class Main
 	public function gender()
     {
         $this->begin();
-
+		$createInstance = new Create($this->configMap,$this->classMap);
+		$createInstance->make();
+		return $createInstance;
     }
 
 	/**
@@ -117,7 +123,7 @@ class Main
 	protected function chkClassMap( $classMap = null )
     {
         if(is_null($classMap)){
-            $classMap = $this->classMap->getAll();
+            $classMap = $this->classMap->getAll()??[];
         }
         foreach($classMap as $class) {
             if ( !class_exists($class) ) {
@@ -126,6 +132,7 @@ class Main
         }
 		return true;
 	}
+
     /**
      * 设置基类
      * @param $class
@@ -134,7 +141,7 @@ class Main
         if(!class_exists($basicController)){
             throw new ClassNotFoundException('基类['.$basicController .']不存在');
         }
-        $this->basicController = $basicController;
+        $this->configMap->offsetSet('basic_controller', $basicController);
     }
 
     /**
@@ -146,19 +153,8 @@ class Main
        if(!is_array($ignore)){
             throw new \LogicException('参数类型错误[ignore]');
         }
-        $this->chkClassMap($ignore);
-        $this->ignore = $ignore;
-    }
-
-    /**
-     * 设置glob函数的匹配规则
-     * @param $value
-     */
-    public function setPatternFlag(Int $patternFlag){
-        if(!in_array($patternFlag,[GLOB_MARK,GLOB_NOSORT ,GLOB_NOCHECK ,GLOB_NOESCAPE ,GLOB_BRACE ,GLOB_ONLYDIR ,GLOB_ERR ])){
-            throw new \LogicException('方法 glob 不存在'.$patternFlag.'规则');
-        }
-        $this->patternFlag = $patternFlag;
+       $this->chkClassMap($ignore);
+       $this->configMap->offsetSet('ignore',$ignore);
     }
 
     /**
@@ -169,15 +165,15 @@ class Main
         if(!is_dir(dirname($workDir))){
             throw new FolderNotFoundException('工作目录不存在');
         }
-        $this->workDir = $workDir;
+	    $this->configMap->offsetSet('work_dir',$workDir);
     }
 
     /**
      * 设置memi类型
      * @param $value
      */
-    public function setMemiType(String $memiType){
-        $this->memiType = $memiType;
+    public function setMemiType( $memiType='text/x-php'){
+	    $this->configMap->offsetSet('memi_type',$memiType);
     }
 
     /**
@@ -188,6 +184,7 @@ class Main
         $diff = array_diff_key($regular, $this->regular);
         //TODO:正则判断键名判断
         $this->regular = array_merge($this->regular,$regular);
+        $this->configMap->offsetSet('regular',$this->regular);
     }
 
     /**
@@ -197,19 +194,9 @@ class Main
     public function setDepositPath($depositPath = ''){
         if(!is_dir($depositPath)){
             File::make($depositPath);
-//            throw new FolderNotFoundException('文件存放目录不存在');
         }
+		$this->configMap->offsetSet('deposit_path',$depositPath);
 
-        $this->depositPath = $depositPath;
-
-    }
-
-    public function setPattern($pattern = ''){
-        if(in_array($pattern,['current','all'])){
-            $this->pattern = $pattern;
-        }else{
-            $this->pattern = 'current';
-        }
     }
 
     /**
@@ -217,7 +204,7 @@ class Main
      * @param String $funcName
      * @param $value
      */
-    private function getMethod(String $funcName,$value)
+    private function getMethod(String $funcName,$value = null)
     {
         $property = Str::convertUnderline($funcName,false);
         $method = 'set' . ucfirst($property);
@@ -225,6 +212,7 @@ class Main
             if((empty($this->$property) || is_null($this->$property)) && !$value && $property != 'ignore'){
                 throw new \BadMethodCallException('参数['.$funcName.']不能为空');
             }
+            $value = $value == null?$this->$property:$value;
             $this->$method($value);
             return ;
         }
@@ -232,4 +220,16 @@ class Main
         throw new \BadFunctionCallException('不存在的set方法[' . $method . ']');
     }
 
+	private function checkSet(){
+		/*$keys = (array_map([Str::class,'uncamelize'],array_keys(get_object_vars($this))));
+
+		foreach($keys as $value){
+			if(!$this->configMap->offsetExists($value)){
+				if($value == 'config_map'){
+					continue;
+				}
+				$this->getMethod($value);
+			}
+		}*/
+	}
 }

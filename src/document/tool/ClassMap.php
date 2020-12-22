@@ -64,4 +64,9 @@ class ClassMap implements \ArrayAccess
     public function getAll(){
         return $this->classMap;
     }
+
+    public function getLength():Int
+    {
+		return $this->classMap?count($this->classMap):0;
+    }
 }
