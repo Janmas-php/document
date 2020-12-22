@@ -12,6 +12,10 @@ namespace test\classes;
 
 class B extends Basic
 {
+
+    public function first(){
+
+    }
 	/**
 	 * @title 测试
 	 * @method post

@@ -43,6 +43,10 @@ class Parse
 			return ;
 		}
 		$docComment = $refMethod->getDocComment();
+		if(!$docComment){
+            $this->methodMap->offsetUnset($shortName);
+		    return ;
+        }
 		$regular = ($this->configMap->offsetGet('regular'));
 		$content = [];
 		foreach($regular as $key=>$value){

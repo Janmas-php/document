@@ -1,5 +1,6 @@
 {
     "name": "janmas/doc",
+    "description": "根据注释生成api文档",
     "authors": [
         {
             "name": "Janmas Crom",
