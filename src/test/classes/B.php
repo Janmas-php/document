@@ -18,6 +18,7 @@ class B extends Basic
     }
 	/**
 	 * @title 测试
+	 * @url api/b/test
 	 * @method post
 	 * @desc 这个是测试用的func
 	 * @param String $keyword 关键词

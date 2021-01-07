@@ -221,15 +221,18 @@ class Main
     }
 
 	private function checkSet(){
-		/*$keys = (array_map([Str::class,'uncamelize'],array_keys(get_object_vars($this))));
-
-		foreach($keys as $value){
-			if(!$this->configMap->offsetExists($value)){
-				if($value == 'config_map'){
-					continue;
-				}
-				$this->getMethod($value);
-			}
-		}*/
+    	$ref = new \ReflectionClass($this);
+    	$propertys = $ref->getProperties(\ReflectionProperty::IS_PROTECTED);
+    	foreach($propertys as $property){
+    		$propertyName = $property->getName();
+    		if($propertyName == 'configMap'){
+    			continue;
+		    }
+    		if($this->configMap->offsetExists(Str::uncamelize($propertyName))){
+				continue;
+		    }else{
+    			$this->configMap->offsetSet(Str::uncamelize($propertyName), $this->$propertyName);
+		    }
+	    }
 	}
 }

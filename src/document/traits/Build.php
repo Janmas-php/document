@@ -28,7 +28,7 @@ trait Build
 	 * 文件集合 暂时没有用到
 	 * @var array
 	 */
-	public $ignoreFileMap = [];
+	private $ignoreFileMap = [];
 
 	/**
 	 * 准备文件classMap

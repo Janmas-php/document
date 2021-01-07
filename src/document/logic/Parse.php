@@ -143,7 +143,7 @@ EOF;
 		}
 
 		if(isset($return)){
-			$file .= "### 返回示例\r\n```\r\n{$return}\r\n```";
+			$file .= "### 返回示例\r\n```\r\n{$return}\r\n```\r\n";
 		}
 
 		$file .= "---\r\n";
