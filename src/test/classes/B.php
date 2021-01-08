@@ -18,7 +18,7 @@ class B extends Basic
     }
 	/**
 	 * @title 测试
-	 * @url api/b/test
+	 * @url api/b/index
 	 * @method post
 	 * @desc 这个是测试用的func
 	 * @param String $keyword 关键词
@@ -29,7 +29,7 @@ class B extends Basic
 	}
 	/**
 	 * @title 测试
-	 * @method post
+	 * @method get
 	 * @url api/b/test
 	 * @desc 这个是测试用的func
 	 * @param String $keyword 关键词

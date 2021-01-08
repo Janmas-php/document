@@ -9,14 +9,10 @@
 
 namespace doc;
 
-
-use doc\logic\Create;
-use doc\tool\ConfigMap;
-use doc\tool\Str;
-use doc\tool\File;
 use doc\traits\Build;
-use doc\exception\ClassNotFoundException;
-use doc\exception\FolderNotFoundException;
+use doc\logic\Create;
+use doc\tool\{ConfigMap,Str,File};
+use doc\exception\{ClassNotFoundException,FolderNotFoundException};
 
 /**
  * Class Main
@@ -90,18 +86,17 @@ class Main
 
 	    $data = func_get_args();
 		if(is_array($data[0])){
-//			$arg = array_merge(array_flip(array_map([Str::class,'uncamelize'],array_keys(get_object_vars($this)))),$data[0]); #TODO:兼容参数部分参数不传
 			foreach($data[0] as $key => $item){
 				//检查并调用各个参数的set方法
 				$this->getMethod($key,$item);
 			}
 		}else{
 			if(empty($workDir)){
-				throw new BadMethodCallException('请传入工作目录');
+				throw new \Exception('请传入工作目录');
 			}
 			$this->setWorkDir($workDir);
 		}
-		$this->checkSet();
+		$this->checkSet(); #TODO:兼容参数部分参数不传时自动传到configMap里
 	}
 
     /**
