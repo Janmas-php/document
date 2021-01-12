@@ -76,7 +76,7 @@ trait Build
 				continue;
 			}
 
-			$filename = pathinfo($file)['filename'];
+			$filename = pathinfo($file,PATHINFO_FILENAME);
 			$class = $this->getNamespace($file, $filename);
 			if ( new $class == $basicObject || !class_exists($class) ){
 				continue;
@@ -102,10 +102,9 @@ trait Build
 	 */
 	protected function getNamespace( $file, $className )
 	{
-
+		$namespace = '';
 		$namespacePattern = '/(.*)?namespace\s(.*)?;/';
 
-		$namespace = '';
 		$stream = fopen($file, 'r');
 		while (empty($namespace)){
 			$content = fgets($stream);//逐行读取（感觉一次读多行更好反正namespace都在最前面）
@@ -114,8 +113,6 @@ trait Build
 				$namespace = array_pop($namespace);
 			} else if ( feof($stream) ){
 				throw new ClassNotFoundException('文件' . $file . '没有命名空间');
-			} else{
-				continue;
 			}
 		}
 		fclose($stream);
