@@ -10,7 +10,7 @@
 namespace test\classes;
 
 
-class B extends Basic
+class BeginRun extends Basic
 {
 
     public function first(){

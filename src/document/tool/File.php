@@ -19,8 +19,8 @@ class File
      */
     protected static function gender(String $dir){
         if(!is_dir($dir)){
-            mkdir($dir,true,0777);
-            if(is_dir($dir)){
+            mkdir($dir,true,0777);//鸡肋的递归  智障般的操作 。。这个永远也不会递归。。
+	        if(is_dir($dir)){
                 return true;
             }
             self::gender($dir);

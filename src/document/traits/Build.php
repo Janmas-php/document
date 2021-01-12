@@ -9,8 +9,8 @@
 
 namespace doc\traits;
 
-use doc\tool\ClassMap;
-use doc\tool\ConfigMap;
+use doc\exception\ClassNotFoundException;
+use doc\map\{ClassMap, ConfigMap};
 
 /**
  * Trait Build
@@ -36,14 +36,14 @@ trait Build
 	 * 准备文件classMap
 	 */
 	public function begin()
-    {
-        $this->classMap = ClassMap::instance();
-        if(!empty($this->configMap->offsetGet('ignore'))){
-            $this->ignoreFile();
-        }
-        /**
-         * 读文件存类
-         */
+	{
+		$this->classMap = ClassMap::instance();
+		if ( !empty($this->configMap->offsetGet('ignore')) ){
+			$this->ignoreFile();
+		}
+		/**
+		 * 读文件存类
+		 */
 		$this->glob();
 		/**
 		 * 检查类集合
@@ -51,80 +51,87 @@ trait Build
 		$this->chkClassMap();
 	}
 
-    /**
-     * 把文件读入classMap
-     * @param string $dir
-     */
-	protected function glob($dir='')
+	/**
+	 * 把文件读入classMap
+	 * @param string $dir
+	 */
+	protected function glob( $dir = '' )
 	{
-		$fileMap = glob(empty($dir)?$this->configMap->offsetGet('work_dir'):$dir);
+		$fileMap = glob(empty($dir) ? $this->configMap->offsetGet('work_dir') : $dir);
 		$basicClass = $this->configMap->offsetGet('basic_controller');
 		$basicObject = new $basicClass;
-
 		/**
 		 * 指定获取文件memi类型
 		 */
-		$memiType =  finfo_open(FILEINFO_MIME_TYPE);
-		foreach($fileMap as $offset=>$file){
-            if(finfo_file($memiType,$file) !== $this->configMap->offsetGet('memi_type')){
-		        continue;
-            }
-
-            $file = str_replace('/','\\',$file);
-
-		    if(in_array($file,$this->ignoreFileMap)){
-		        continue;
-            }
-
-            $filename = pathinfo($file)['filename'];
-            $class = $this->getNamespace($file,$filename);
-            if(new $class == $basicObject ){
+		$memiType = finfo_open(FILEINFO_MIME_TYPE);
+		$offset = 1 ;
+		foreach ($fileMap as $file){
+			if ( finfo_file($memiType, $file) !== $this->configMap->offsetGet('memi_type') ){
 				continue;
-            }
-            $this->classMap->offsetSet($offset,'\\'.$class);
-        }
+			}
+
+			$file = str_replace('/', '\\', $file);
+
+			if ( in_array($file, $this->ignoreFileMap) ){
+				continue;
+			}
+
+			$filename = pathinfo($file)['filename'];
+			$class = $this->getNamespace($file, $filename);
+			if ( new $class == $basicObject || !class_exists($class) ){
+				continue;
+			}
+
+			$this->classMap->offsetSet($offset, '\\' . $class);
+			++$offset;
+		}
 	}
 
-    /**
-     * 暂时用不到
-     */
+	/**
+	 * 暂时用不到
+	 */
 	protected function buidClassMap()
-    {
+	{
 		$this->chkClassMap($this->classMap);
 	}
 
-    /**
-     * 获取当前文件的命名空间
-     * @param $file
-     * @return string
-     */
-	protected function getNamespace($file,$className){
+	/**
+	 * 获取当前文件的命名空间
+	 * @param $file
+	 * @return string
+	 */
+	protected function getNamespace( $file, $className )
+	{
 
-        $namespacePattern = '/(.*)?namespace\s(.*)?;/';
+		$namespacePattern = '/(.*)?namespace\s(.*)?;/';
 
-        $namespace = '';
-        $fileHandle = fopen($file,'r');
-        while(empty($namespace)){
-            $content = fgets($fileHandle);//逐行读取（感觉一次读多行更好反正namespace都在最前面）
-            if(preg_match($namespacePattern,$content,$namespace)){
-                $namespace = array_pop($namespace);
-            }else{
-                continue;
-            }
-        }
-        fclose($fileHandle);
-        $class = $namespace . '\\'.$className;
-        return $class;
-    }
+		$namespace = '';
+		$stream = fopen($file, 'r');
+		while (empty($namespace)){
+			$content = fgets($stream);//逐行读取（感觉一次读多行更好反正namespace都在最前面）
 
-    /**
-     * 把忽略文件的类读成文件
-     */
-    protected function ignoreFile(){
-        foreach($this->configMap->offsetGet('ignore') as $class) {
-            $reflector = new \ReflectionClass($class);
-            $fn        = $reflector->getFileName();
-            $this->ignoreFileMap[] = ($fn);
-        }
-    }
+			if ( preg_match($namespacePattern, $content, $namespace) ){
+				$namespace = array_pop($namespace);
+			} else if ( feof($stream) ){
+				throw new ClassNotFoundException('文件' . $file . '没有命名空间');
+			} else{
+				continue;
+			}
+		}
+		fclose($stream);
+		$class = $namespace . '\\' . $className;
+		return $class;
+	}
+
+	/**
+	 * 把忽略文件的类读成文件
+	 */
+	protected function ignoreFile()
+	{
+		foreach ($this->configMap->offsetGet('ignore') as $class){
+			$reflector = new \ReflectionClass($class);
+			$fn = $reflector->getFileName();
+			$this->ignoreFileMap[] = ($fn);
+		}
+	}
 }

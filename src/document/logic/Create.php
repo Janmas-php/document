@@ -10,9 +10,8 @@
 namespace doc\logic;
 
 use doc\exception\ClassNotFoundException;
-use doc\tool\ClassMap;
-use doc\tool\ConfigMap;
-use doc\tool\MethodMap;
+use doc\map\{ClassMap,ConfigMap,MethodMap};
+use doc\tool\Str;
 
 /**
  * Class Create
@@ -69,18 +68,8 @@ class Create
     public function make(){
 	    $offset = 1;
 		while($this->classMap->getLength()){
-			$class = $this->classMap->offsetGet($offset);
-			/**
-			 * 感觉这里可以不用判断$class是否存在因为之前已经判断过了
-			 */
-			if(class_exists($class)){
-				$ref = new \ReflectionClass($class);
-				$method = $this->storageMethods($ref);
-				/*if($method){
-					//TODO:通知Parse类来活了准备干活
-					$this->praseInstance->do($ref->getShortName().'_'.$method);
-				}*/
-			}
+			$ref = new \ReflectionClass($this->classMap->offsetGet($offset));
+			$this->storageMethods($ref);
 			$this->classMap->offsetUnset($offset);
 			++$offset;
 		}
@@ -97,17 +86,18 @@ class Create
 			if(in_array($method->getName(),$this->basicControllerMethods)){
 				continue;
 			}
-			$flag = $reflectionClass->getShortName().'_'.$method->getName();
+			$flag = Str::uncamelize($reflectionClass->getShortName()) .'_'.$method->getName();
 			$this->methodMap->offsetSet($flag,$method);
 			$this->praseInstance->do($flag);
 		}
 
-		if($this->methodMap->getLength() < 1){
-			return false;
-		}
+		return true;
     }
 
     public function setBasicControllerMethods(){
+    	if(!$this->configMap->offsetExists('basic_controller')){
+    		return ;
+	    }
     	$base = $this->configMap->offsetGet('basic_controller');
     	if(!class_exists($base)){
     		throw new ClassNotFoundException('不存在的基类[' . $base . ']');

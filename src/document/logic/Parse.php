@@ -9,10 +9,8 @@
 
 namespace doc\logic;
 
-
-use doc\tool\ConfigMap;
+use doc\map\{ConfigMap,MethodMap};
 use doc\tool\File;
-use doc\tool\MethodMap;
 
 /**
  * Class Parse
@@ -23,6 +21,7 @@ use doc\tool\MethodMap;
 class Parse
 {
 	public $configMap;
+
 	public $methodMap;
 
 	public function __construct(ConfigMap $configMap ,MethodMap $methodMap ){
@@ -57,7 +56,7 @@ class Parse
 				$content[$key] = $this->$methodName($value,$docComment);
 			}
 		}
-		array_filter($content);
+
 		if(!empty($content)){
 			$file = $this->checkFile($refMethod,$shortName);
 			$this->buildFile($content,$refMethod,$file,$shortName);
@@ -114,12 +113,21 @@ class Parse
 	 * @param $shortName
 	 */
 	private function buildFile($content,$refMethod,$file,$shortName){
-		//存文件
 		$file = '';
+		/**
+		 * @var string $title
+		 * @var string $desc
+		 * @var string $url
+		 * @var string $method
+		 * @var string $return
+		 * @var array $params
+		 */
 		extract($content);
+
 		if(!isset($url) ){
 			$url = $refMethod->class.'/'.$refMethod->getName();
 		}
+
 		$file .= <<<EOF
 ### $title
 
@@ -133,6 +141,7 @@ class Parse
 - `$method `
 
 EOF;
+
 		if(!empty($params)){
 			$file .= "##### 参数\r\n| 参数名  | 类型   | 描述 |\r\n| :------ | :----- | :------ |\r\n";
 			foreach($params as $param){

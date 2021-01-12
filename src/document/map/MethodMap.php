@@ -7,12 +7,12 @@
 //| 
 //+-----------------------------------------------------------
 
-namespace doc\tool;
+namespace doc\map;
 
 
-class ConfigMap implements \ArrayAccess
+class MethodMap implements \ArrayAccess
 {
-	public $config = [];
+	public $methodMap = [];
 
 	public static $instance;
 
@@ -30,7 +30,7 @@ class ConfigMap implements \ArrayAccess
 	 */
 	public function offsetExists( $offset )
 	{
-		return isset($this->config[$offset]);
+		return isset($this->methodMap[$offset]);
 	}
 
 	/**
@@ -39,10 +39,9 @@ class ConfigMap implements \ArrayAccess
 	public function offsetGet( $offset )
 	{
 		if($this->offsetExists($offset)){
-			return $this->config[$offset];
+			return $this->methodMap[$offset];
 		}
-
-		throw new \LogicException('不存在的配置信息[' . $offset . ']');
+		return false;
 	}
 
 	/**
@@ -50,7 +49,7 @@ class ConfigMap implements \ArrayAccess
 	 */
 	public function offsetSet( $offset, $value )
 	{
-		$this->config[$offset] = $value;
+		$this->methodMap[$offset] = $value;
 	}
 
 	/**
@@ -58,10 +57,14 @@ class ConfigMap implements \ArrayAccess
 	 */
 	public function offsetUnset( $offset )
 	{
-		unset($this->config[$offset]);
+		unset($this->methodMap[$offset]);
 	}
 
 	public function getAll(){
-		return $this->config;
+		return $this->methodMap;
+	}
+
+	public function getLength(){
+		return $this->methodMap?count($this->methodMap):0;
 	}
 }

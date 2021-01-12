@@ -7,7 +7,7 @@
 //| 存放类集合
 //+-----------------------------------------------------------
 
-namespace doc\tool;
+namespace doc\map;
 
 
 class ClassMap implements \ArrayAccess
