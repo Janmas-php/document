@@ -11,7 +11,8 @@ namespace doc;
 
 use doc\traits\Build;
 use doc\logic\Create;
-use doc\tool\{ConfigMap,Str,File};
+use doc\tool\{Str,File};
+use doc\map\ConfigMap;
 use doc\exception\{ClassNotFoundException,FolderNotFoundException};
 
 /**
@@ -133,7 +134,16 @@ class Main
      * @param $class
      */
     public function setBasicController(String $basicController){
-        if(!class_exists($basicController)){
+
+	    /**
+	     * 为了兼容php脚本加了个这个鬼东西
+	     */
+    	if(is_file($basicController)){
+		    $filename = pathinfo($basicController)['filename'];
+			$basicController = $this->getNamespace($basicController, $filename);
+	    }
+
+	    if(!class_exists($basicController)){
             throw new ClassNotFoundException('基类['.$basicController .']不存在');
         }
         $this->configMap->offsetSet('basic_controller', $basicController);
